@@ -1,0 +1,15 @@
+<odoo>
+        <record model="students.person" id="person1">
+            <field name="name">Vasya</field>
+            <field name="surname">zapupkin</field>
+            <field name="age">19</field>
+        </record>
+        <record model="students.person" id="person2">
+            <field name="name">Sanya</field>
+            <field name="surname">lolkin</field>
+            <field name="age">30</field>
+        </record>
+        <record model="openacademy.course" id="course2">
+            <field name="name">Antoha</field>
+        </record>
+</odoo>

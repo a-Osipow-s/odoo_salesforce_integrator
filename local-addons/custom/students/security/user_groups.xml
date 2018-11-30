@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record model="ir.module.category" id="demo_module_access">
+        <field name="name">Demo module access</field>
+        <field name="description">User access level for this module</field>
+        <field name="sequence">1</field>
+    </record>
+
+        <record id="group_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root'))]"/>
+            <field name="category_id" ref="students.demo_module_access"/>
+        </record>
+
+        <record id="group_manager" model="res.groups">
+            <field name="name">Manager</field>
+            <field name="implied_ids" eval="[(4, ref('students.group_user'))]"/>
+            <field name="category_id" ref="students.demo_module_access"/>
+        </record>
+
+    <!-- top level menu: no parent -->
+    <menuitem id="main_access_rights_menu" name="Access rights demo"/>
+    <menuitem id="access_rights_menu" name="Rights demo" parent="main_access_rights_menu"/>
+    <!-- Add the security groups here to allow only access for specific user groups! -->
+    <!--<menuitem id="menu_detail_access_admin_rights" action="access_rights_admin_action" parent="access_rights_menu"-->
+       <!--groups="students.group_manager"/>-->
+    <!--<menuitem id="menu_detail_access_user_rights" action="access_rights_user_action" parent="access_rights_menu"-->
+       <!--groups="students.group_user"/>-->
+</odoo>

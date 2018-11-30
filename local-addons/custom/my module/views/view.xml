@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="view_id">
+    <field name="name">test_module</field>
+    <field name="model">test_module</field>
+    <field name="arch" type="xml">
+        <form>
+            <field name="AntonModule"/>
+        </form>
+    </field>
+</record>
+</odoo>

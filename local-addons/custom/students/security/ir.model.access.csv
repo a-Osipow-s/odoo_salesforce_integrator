@@ -1,0 +1,10 @@
+id,name,model_id/id,group_id/id,perm_read,perm_write,perm_create,perm_unlink
+
+
+
+
+demo_admin, Model admin access,model_students_person,students.group_manager,1,1,1,1
+demo_user, Model user access,model_students_person,students.group_user,1,0,0,0
+
+demo_admin_book, Model admin access,model_students_book,students.group_manager,1,1,1,1
+demo_user_book, Model user access,model_students_book,students.group_user,1,0,0,0

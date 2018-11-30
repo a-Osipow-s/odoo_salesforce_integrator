@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+        <!-- Tree View of Student-->
+    <record id="person_tree_view" model="ir.ui.view">
+        <field name="name">person.tree.view</field>
+        <field name="model">students.person</field>
+        <field name="arch" type="xml">
+            <tree string="customer Information">
+                <field name="name"/>
+                <field name="surname"/>
+                <field name="age"/>
+                <field name="books"/>
+                <!--<field name="book_count"/>-->
+            </tree>
+        </field>
+    </record>
+
+        <!-- Form View Of Student  -->
+    <record id="person_form_view" model="ir.ui.view">
+        <field name="name">person.form.view</field>
+        <field name="model">students.person</field>
+        <field name="arch" type="xml">
+            <form>
+             <group>
+                <field name="name" string="Name" placeholder="Name" style=" max-width: 500px;  width: 500px"/>
+                <field name="surname" string="Surame"  placeholder="Surname" style=" max-width: 500px;  width: 500px" />
+                <field name="age"   string="Age" style="max-width: 500px;  width: 500px" />
+                 <!--<field name="count_books"   string="Count of books" style="max-width: 1150px;  width: 500px" />-->
+                <field name="books"   string="Books" style="max-width: 500px;  width: 500px" />
+                <field name="book_count" string="Count of books" style="max-width: 500px;  width: 500px" />
+             </group>
+            </form>
+        </field>
+    </record>
+
+            <!-- Tree View of Book-->
+    <record id="book_tree_view" model="ir.ui.view">
+        <field name="name">person.tree.view</field>
+        <field name="model">students.book</field>
+        <field name="arch" type="xml">
+            <tree string="book Information">
+                <field name="name"/>
+                <field name="author"/>
+            </tree>
+        </field>
+    </record>
+
+        <!-- Form View Of Book  -->
+    <record id="book_form_view" model="ir.ui.view">
+        <field name="name">person.form.view</field>
+        <field name="model">students.book</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="call_async_func" type="object" class="oe_highlight" string="Start Async func"/>
+                </header>
+             <group>
+                <field name="name" string="Name" placeholder="Name" style=" max-width: 500px;  width: 500px"/>
+                <field name="author" string="Author"  placeholder="Author" style=" max-width: 500px;  width: 500px" />
+             </group>
+            </form>
+        </field>
+    </record>
+
+        <!-- Search View for Student Information -->
+    <record id="student_search_view" model="ir.ui.view">
+		<field name="name">student.search.view</field>
+		<field name="model">students.person</field>
+		<field name="arch" type="xml">
+		    <search string="Student Information">
+			    <field name="name"/>
+			    <field name="surname"/>
+			    <field name="age"/>
+			    <group expand="0" string="Group By">
+				    <filter name="group_by_age" string="Age" domain="[]" context="{'group_by':'age'}"
+					    help="Group Students by age"/>
+			    </group>
+			    <filter string="Younger then 19 years " name="fil_by_younger_19" domain="[('age','&lt;=',19)]"
+				    help="Shows students under 19"/>
+                <filter string="Older then 19 years " name="fil_by_younger_19" domain="[('age','>',19)]"
+				    help="Shows students older 19"/>
+		    </search>
+		</field>
+    </record>
+
+    <record id="main_action" model="ir.actions.act_window">
+        <field name="name">Students</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">students.person</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click here to create new student !
+            </p>
+        </field>
+    </record>
+
+    <record id="book_action" model="ir.actions.act_window">
+        <field name="name">Books</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">students.book</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click here to create new student !
+            </p>
+        </field>
+    </record>
+
+    <menuitem id = "students_menu_root" name="Students" sequence="1"/>
+    <menuitem id = "students_menu" name="Students" action="main_action" groups="students.group_manager" parent="students_menu_root" sequence="1"/>
+    <menuitem id = "books_menu" name="Books" action="book_action" groups="students.group_manager" parent="students_menu_root" sequence="2"/>
+    <!--<menuitem id = "students_menu_create" name="create students" action="person_tree_view" parent="students_menu" sequence="2"/>-->
+</odoo>
