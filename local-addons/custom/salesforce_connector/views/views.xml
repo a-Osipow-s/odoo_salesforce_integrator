@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+    <record model="ir.ui.view" id="rest_user_inherit_form">
+            <field name="name">res.users.form</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet/notebook/page[2]" position="after">
+                    <page string="Sale force Credentials">
+                        <group>
+                            <field name="sf_username"/>
+                            <field name="sf_password" password="True"/>
+                            <field name="sf_security_token"/>
+                            <!--<field name="auth_token"/>-->
+                            <!--<field name="marketplaceid"/>-->
+                            <button name="test_credientials" type="object" string="Test Credientials" class="oe_highlight" />
+                        </group>
+
+                    </page>
+                </xpath>
+            </field>
+           </record>
+
+    <record model="ir.ui.view" id="salesforce_form_view">
+
+
+            <field name="name">salesforce.form</field>
+            <field name="model">salesforce.connector</field>
+            <field name="arch" type="xml">
+            <form string="Amazon Settings"  edit="false" create="false" >
+
+
+
+
+                     <sheet>
+                           <group>
+                                 <group>
+                                   <h1>ODOO CONNECTOR</h1>
+                                 </group>
+                                 <group>
+                                        <group>
+
+                                        </group>
+                                        <group>
+                                         <div>
+                                         <label for="street" string="Last Sync Date :" style="text-align:right;"/>
+
+                                         </div>
+
+                                        </group>
+                                 </group>
+
+
+
+
+                           </group>
+
+
+
+
+
+
+
+
+                           <group>
+
+                               <group>
+
+                                <field name="customers"/>
+                                <field name="sales_orders"/>
+                                <field name="products" />
+
+                               </group>
+
+                                <group>
+
+
+                                </group>
+
+                                <group>
+
+                                  <button name="sync_data" type="object" string="Sync" class="oe_highlight"
+                                  icon="fa-refresh fa-2x" style="width:20%" />
+
+                                </group>
+
+
+
+                            </group>
+
+                         <notebook colspan="3">
+                         <page string="Connector History details" autofocus="autofocus">
+                          <group>
+                              <field name="history_line" mode="tree,kanban" >
+
+                                    <form string="Sales Order Lines" create="false" edit="false" save="false" >
+                                        <group>
+                                            <group>
+                                                <field name="sync_date"/>
+                                                <field name="no_of_orders_sync"/>
+                                                <field name="no_of_products_sync"/>
+                                                <field name="no_of_customers_sync"/>
+                                                <field name="document_link" widget="url"/>
+                                            </group>
+                                        </group>
+
+
+
+
+                                    </form>
+
+                                    <tree string="Sales Order Lines" create="false" limit="15" >
+                                        <field name="sync_date"/>
+                                        <field name="no_of_orders_sync"/>
+                                        <field name="no_of_products_sync"/>
+                                        <field name="no_of_customers_sync"/>
+                                        <field name="document_link" widget="url"/>
+
+                                    </tree>
+
+                               </field>
+
+                          </group>
+                         </page>
+                         <page string="Connector Graph View" autofocus="autofocus"/>
+                         <page string="Schedule Sync Setting" autofocus="autofocus"/>
+
+                         </notebook>
+
+                     </sheet>
+
+                </form>
+            </field>
+
+
+        </record>
+
+    <record model="ir.ui.view" id="salesforce_tree_view">
+
+            <field name="name">salesforce.tree</field>
+            <field name="model">salesforce.connector</field>
+            <field name="arch" type="xml">
+                <tree string="salesforce Users" create="false" edit="false">
+                            <field name="field_name"/>
+
+                </tree>
+            </field>
+        </record>
+
+    <record model="ir.actions.act_window" id="salesforce_action">
+      <field name="name">practise window</field>
+      <field name="res_model">salesforce.connector</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">form,tree</field>
+       <!--<field name="res_id" ref="salesforce_connector.my_record_01"/>-->
+      <field name="target">inline</field>
+    </record>
+
+
+    <menuitem id="main_salesforce_menu" name="Sales Force"/>
+
+    <menuitem id="salesforce_menu" name="Sales Force"
+                  parent="main_salesforce_menu" action="salesforce_action"/>
+
+  </data>
+</odoo>

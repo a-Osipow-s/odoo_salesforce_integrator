@@ -53,6 +53,7 @@
             <form>
                 <header>
                     <button name="call_async_func" type="object" class="oe_highlight" string="Start Async func"/>
+                    <button name="delete_all_books" type="object" class="oe_highlight" string="Delete all books"/>
                 </header>
              <group>
                 <field name="name" string="Name" placeholder="Name" style=" max-width: 500px;  width: 500px"/>

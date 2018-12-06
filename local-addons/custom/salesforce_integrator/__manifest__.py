@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "Students",
+    'name': "Salesforce integrator",
 
-    'summary': """Manage students""",
+    'summary': """Integrate salesforce""",
 
     'description': """
-        Students module for managing studentss:
-            - create students
+        Module for integrate salesforce
     """,
 
     'author': "Matvey",
@@ -20,9 +19,9 @@
 
     # always loaded
     'data': [
-        'security/user_groups.xml',
         'security/ir.model.access.csv',
-        'views/students.xml',
+        'views/templates.xml',
+        'views/views.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
