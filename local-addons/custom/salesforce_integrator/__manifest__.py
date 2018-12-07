@@ -15,13 +15,12 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['base', 'queue_job'],
+    'depends': ['base', 'sale', 'queue_job'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'views/templates.xml',
-        'views/views.xml',
+        'views/view.xml',
     ],
     # only loaded in demonstration mode
     'demo': [
