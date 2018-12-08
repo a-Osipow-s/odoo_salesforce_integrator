@@ -6,6 +6,9 @@ volumes:
 
 services:
   web:
+    build:
+      context: .
+      dockerfile: ./dockerfile
     image: odoo:12.0
     depends_on:
       - db
@@ -22,6 +25,5 @@ services:
       - POSTGRES_PASSWORD=odoo
       - POSTGRES_USER=odoo
       - POSTGRES_DB=postgres
-
     volumes:
       - local_postgres_data:/var/lib/postgresql/data

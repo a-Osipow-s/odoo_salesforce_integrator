@@ -52,10 +52,9 @@
                                 <group>
                                 </group>
                                 <group>
-                                  <button name="connect_to_salesforce" type="object" string="Sync" class="oe_highlight"
-                                    style="width:20%" />
-                                  <button name="add_customers_from_sales_force" type="object" string="Sync" class="oe_highlight"
-                                    icon="fa-refresh fa-2x" style="width:20%" />
+                                  <button name="connect_to_salesforce" type="object" string="connect to salesforce" class="oe_highlight"/>
+                                  <button name="sync_data" type="object" string="Import customers" class="oe_highlight"
+                                    icon="fa-refresh fa-2x" />
                                 </group>
                             </group>
                          <notebook colspan="3">

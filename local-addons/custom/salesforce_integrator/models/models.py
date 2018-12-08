@@ -1,6 +1,7 @@
 from odoo import models, fields, api
-from simple_salesforce import Salesforce
+from simple_salesforce import Salesforce, SalesforceLogin
 from openerp import _
+import logging
 
 
 class SalesforceCustomers(models.Model):
@@ -17,30 +18,48 @@ class SalesforceCustomers(models.Model):
 
 class SalesForceImporter(models.Model):
     _name = 'salesforce.connector'
+    _logger = logging.getLogger('SalesForceImporter_logger')
+    field_name = fields.Char(sring="salesforce connector")
     sales_force = None
 
-    field_name = fields.Char(sring="salesforce connector")
-
     def sync_data(self):
-            self.import_data()
+        self.import_data()
 
     def import_data(self):
         data_dictionary = {}
+
+        username = 'mycompany@mail.ru'
+        password = 'admin123456'
+        security_token = 'xnVi1tGutbGedB7Wzg1hTv1jT'
+        session_id, instance = SalesforceLogin(
+            username=username,
+            password=password,
+            security_token=security_token)
+        self.sales_force = Salesforce(instance=instance, session_id=session_id)
+        self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
+
         if self.sales_force is None:
             raise Warning(_("Kindly provide Salesforce credentails for odoo user", ))
-        if self.customers:
+        else:
             data_dictionary["customers"] = self.add_customers_from_sales_force()
-        if self.sales_orders:
-            data_dictionary["sales_orders"] = self.import_sale_orders()
+        # if self.sales_orders:
+        #     data_dictionary["sales_orders"] = self.import_sale_orders()
 
+    @api.multi
     def connect_to_salesforce(self):
         try:
             username = 'mycompany@mail.ru'
-            password = 'admin1234'
-            security_token = 'GnPAPC2gzkLr5TXllhMPgt4Mt'
-            self.sales_force = Salesforce(username=username, password=password, security_token=security_token)
+            password = 'admin123456'
+            security_token = 'xnVi1tGutbGedB7Wzg1hTv1jT'
+            session_id, instance = SalesforceLogin(
+                username=username,
+                password=password,
+                security_token=security_token)
+            self.sales_force = Salesforce(instance=instance, session_id=session_id)
+            self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
         except Exception as e:
             Warning(_(str(e)))
+        return True
 
     def import_customers(self):
         try:
@@ -48,14 +67,16 @@ class SalesForceImporter(models.Model):
         except Exception as e:
             raise Warning(_(str(e)))
 
+    @api.multi
     def add_customers_from_sales_force(self, customer_id=None):
-        query = "select id, name, shippingStreet, ShippingCity,Website, ShippingPostalCode, shippingCountry, fax, phone, Description from account %s"
-        extend_query = ''
+        self._logger.info('gurrent sales_force state: %s' % self.sales_force)
+        query = "select id, name, shippingStreet, ShippingCity,Website, ShippingPostalCode, shippingCountry, fax, phone, Description from account"
         customers = []
 
         if customer_id:
-            extend_query = "where id='%s'" % customer_id
-        contacts = self.sales_force.query(query % extend_query)["records"]
+            query = query + " where id='%s'" % customer_id
+
+        contacts = self.sales_force.query(query=query)["records"]
         for customer in contacts:
             customer_data = dict()
             customer_data["name"] = customer["Name"] if customer["Name"] else ""

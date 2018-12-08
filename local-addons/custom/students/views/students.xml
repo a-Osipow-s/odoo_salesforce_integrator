@@ -110,7 +110,7 @@
         </field>
     </record>
 
-    <menuitem id = "students_menu_root" name="Studentssss" sequence="2"/>
+    <menuitem id = "students_menu_root" name="Students" sequence="1"/>
     <menuitem id = "students_menu" name="Students" action="main_action" groups="students.group_manager" parent="students_menu_root" sequence="1"/>
     <menuitem id = "books_menu" name="Books" action="book_action" groups="students.group_manager" parent="students_menu_root" sequence="2"/>
     <!--<menuitem id = "students_menu_create" name="create students" action="person_tree_view" parent="students_menu" sequence="2"/>-->
