@@ -108,6 +108,7 @@ class SalesForceImporter(models.Model):
 
         for customer in contacts:
             customer_data = dict()
+            customer_data["id"] = customer["Id"] if customer["Id"] else ""
             customer_data["name"] = customer["Name"] if customer["Name"] else ""
             customer_data["street"] = customer["ShippingStreet"] if customer["ShippingStreet"] else ""
             customer_data["city"] = customer["ShippingCity"] if customer["ShippingCity"] else ""
@@ -129,28 +130,22 @@ class SalesForceImporter(models.Model):
             orders = self.sales_force.query("select id , AccountId, EffectiveDate, orderNumber, status from Order")['records']
             self._logger.info(orders)
             order_model = self.env["salesforce.orders"]
-            order_name = [order.name for order in order_model.search([])]
+            order_name = [order.order for order in order_model.search([])]
             order_data = []
             for order in orders:
                 if order["OrderNumber"] in order_name:
                     continue
-                # details = self.add_order_products_in_product_model(order["Id"])
-                customer = self.add_customers_from_sales_force(order['AccountId'])[0]
+                customer = order_model.search(['id', '=', order['AccountId']])
+                self._logger.warning(customer)
                 temp_order = {"order": order["OrderNumber"],
-                              "partner_id": customer.id,
+                              "partner_id": "test id",
                               "state": "draft" if order['Status'] == 'Draft' else 'sale',
                               "customer": customer.name,
-                              # "invoice_status": "no",
-                              # "confirmation_date": order['EffectiveDate'],
                               "date_order": order['EffectiveDate']}
                 order_data.append(temp_order)
                 self.env["salesforce.orders"].create(temp_order)
                 self.env.cr.commit()
-                # for product_details, quantity in details:
-                #     self.env["sale.order.line"].create({'product_uom': 1,
-                #                                         'product_id': self.get_product_id(product_details.id),
-                #                                         'order_partner_id': customer.id, "order_id": sale_order.id,
-                #                                         "product_uom_qty": quantity})
+
             self.env.cr.commit()
             return order_data
         except Exception as e:
