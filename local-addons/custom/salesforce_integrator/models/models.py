@@ -15,22 +15,36 @@ class SalesforceCustomers(models.Model):
         record = super(SalesforceCustomers, self).create(values)
         return record
 
+class SalesforceOrders(models.Model):
+    _name = 'salesforce.orders'
+
+    order = fields.Char(string="Order")
+    partner_id = fields.Char(string="Customer id")
+    customer = fields.Char(string="Customer")
+    state = fields.Char(string="Status")
+    date_order = fields.Date(string="Effective Date")
+
+    @api.model
+    def create(self, values):
+        record = super(SalesforceOrders, self).create(values)
+        return record
 
 class SalesForceImporter(models.Model):
     _name = 'salesforce.connector'
+
     _logger = logging.getLogger('SalesForceImporter_logger')
     field_name = fields.Char(sring="salesforce connector")
     sales_force = None
 
-    def sync_data(self):
-        self.import_data()
+    # def sync_data(self):
+    #     self.import_data()
 
     def import_data(self):
         data_dictionary = {}
 
-        username = 'mycompany@mail.ru'
-        password = 'admin123456'
-        security_token = 'xnVi1tGutbGedB7Wzg1hTv1jT'
+        username = 'toni@mail.ru'
+        password = 'Vasykrab123'
+        security_token = 'spAsycjVt9iBA56mXwFxRuRoD'
         session_id, instance = SalesforceLogin(
             username=username,
             password=password,
@@ -42,15 +56,14 @@ class SalesForceImporter(models.Model):
             raise Warning(_("Kindly provide Salesforce credentails for odoo user", ))
         else:
             data_dictionary["customers"] = self.add_customers_from_sales_force()
-        # if self.sales_orders:
-        #     data_dictionary["sales_orders"] = self.import_sale_orders()
+            self.import_sale_orders()
 
     @api.multi
     def connect_to_salesforce(self):
         try:
-            username = 'mycompany@mail.ru'
-            password = 'admin123456'
-            security_token = 'xnVi1tGutbGedB7Wzg1hTv1jT'
+            username = 'toni@mail.ru'
+            password = 'Vasykrab123'
+            security_token = 'spAsycjVt9iBA56mXwFxRuRoD'
             session_id, instance = SalesforceLogin(
                 username=username,
                 password=password,
@@ -89,30 +102,30 @@ class SalesForceImporter(models.Model):
 
     def import_sale_orders(self):
         try:
-            orders = self.sales_force.query("select id , AccountId,"
-                                            " EffectiveDate, orderNumber, status from Order")['records']
-            order_model = self.env["sale.order"]
+            orders = self.sales_force.query("select id , AccountId, EffectiveDate, orderNumber, status from Order")['records']
+            self._logger.info(orders)
+            order_model = self.env["salesforce.orders"]
             order_name = [order.name for order in order_model.search([])]
             order_data = []
             for order in orders:
                 if order["OrderNumber"] in order_name:
                     continue
-                details = self.add_order_products_in_product_model(order["Id"])
+                # details = self.add_order_products_in_product_model(order["Id"])
                 customer = self.add_customers_from_sales_force(order['AccountId'])[0]
-                temp_order = {"name": order["OrderNumber"],
+                temp_order = {"order": order["OrderNumber"],
                               "partner_id": customer.id,
                               "state": "draft" if order['Status'] == 'Draft' else 'sale',
-                              "invoice_status": "no",
-                              "confirmation_date": order['EffectiveDate'],
+                              # "invoice_status": "no",
+                              # "confirmation_date": order['EffectiveDate'],
                               "date_order": order['EffectiveDate']}
                 order_data.append(temp_order)
-                sale_order = self.env["sale.order"].create(temp_order)
+                self.env["salesforce.orders"].create(temp_order)
                 self.env.cr.commit()
-                for product_details, quantity in details:
-                    self.env["sale.order.line"].create({'product_uom': 1,
-                                                        'product_id': self.get_product_id(product_details.id),
-                                                        'order_partner_id': customer.id, "order_id": sale_order.id,
-                                                        "product_uom_qty": quantity})
+                # for product_details, quantity in details:
+                #     self.env["sale.order.line"].create({'product_uom': 1,
+                #                                         'product_id': self.get_product_id(product_details.id),
+                #                                         'order_partner_id': customer.id, "order_id": sale_order.id,
+                #                                         "product_uom_qty": quantity})
             self.env.cr.commit()
             return order_data
         except Exception as e:

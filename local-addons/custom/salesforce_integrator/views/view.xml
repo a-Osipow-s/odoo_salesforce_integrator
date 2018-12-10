@@ -53,7 +53,7 @@
                                 </group>
                                 <group>
                                   <button name="connect_to_salesforce" type="object" string="connect to salesforce" class="oe_highlight"/>
-                                  <button name="sync_data" type="object" string="Import customers" class="oe_highlight"
+                                  <button name="import_data" type="object" string="Import customers" class="oe_highlight"
                                     icon="fa-refresh fa-2x" />
                                 </group>
                             </group>
@@ -88,7 +88,21 @@
                      </sheet>
                 </form>
             </field>
-        </record>
+    </record>
+
+    <record model="ir.ui.view" id="orders_tree_view">
+        <field name="name">salesforce.tree</field>
+        <field name="model">salesforce.orders</field>
+        <field name="arch" type="xml">
+            <tree string="salesforce Users" create="false" edit="false">
+                <field name="order"/>
+                <field name="partner_id"/>
+                <field name="customer"/>
+                <field name="state"/>
+                <field name="date_order"/>
+            </tree>
+        </field>
+    </record>
 
     <record model="ir.ui.view" id="salesforce_tree_view">
             <field name="name">salesforce.tree</field>
@@ -108,6 +122,20 @@
       <field name="target">inline</field>
     </record>
 
+    <record model="ir.actions.act_window" id="orders_action">
+      <field name="name">Orders</field>
+      <field name="res_model">salesforce.orders</field>
+      <field name="view_type">form</field>
+      <field name="view_mode">tree,form</field>
+      <field name="help" type="html">
+         <p class="oe_view_nocontent_create">
+             no orders!
+         </p>
+      </field>
+    </record>
+
+
     <menuitem id = "salesforce_integrator_menu_root" name="Salesforce integrator" sequence="1" groups="base.group_user"/>
     <menuitem id = "salesforces_menu" name="salesforces" action="salesforce_action" parent="salesforce_integrator_menu_root" sequence="1" groups="base.group_user"/>
+    <menuitem id = "salesforce_menu_orders" name="Orders" action="orders_action" parent="salesforce_integrator_menu_root" groups="base.group_user"/>
 </odoo>
