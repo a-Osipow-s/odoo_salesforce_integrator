@@ -139,6 +139,7 @@ class SalesForceImporter(models.Model):
                 temp_order = {"order": order["OrderNumber"],
                               "partner_id": customer.id,
                               "state": "draft" if order['Status'] == 'Draft' else 'sale',
+                              "customer": customer.name,
                               # "invoice_status": "no",
                               # "confirmation_date": order['EffectiveDate'],
                               "date_order": order['EffectiveDate']}
