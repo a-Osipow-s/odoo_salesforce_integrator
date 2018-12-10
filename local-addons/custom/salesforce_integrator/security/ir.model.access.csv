@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_salesforce_connector,access.salesforce.connector,model_salesforce_connector,base.group_user,1,1,1,1
+access_salesforce_customer,access.salesforce.customer,model_salesforce_customer,base.group_user,1,1,1,1

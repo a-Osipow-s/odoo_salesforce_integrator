@@ -2,7 +2,7 @@
 <odoo>
     <record model="ir.ui.view" id="rest_user_inherit_form">
             <field name="name">res.users.form</field>
-            <field name="model">res.users</field>
+            <field name="model">salesforce.user</field>
             <field name="inherit_id" ref="base.view_users_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//form/sheet/notebook/page[2]" position="after">
@@ -100,6 +100,25 @@
             </field>
         </record>
 
+    <record model="ir.ui.view" id="salesforce_tree_view">
+            <field name="name">salesforce.customer.tree</field>
+            <field name="model">salesforce.customer</field>
+            <field name="arch" type="xml">
+                <tree string="salesforce customers" create="false" edit="false">
+                    <button name="sync_data" string="Import customers" class="oe_highlight" icon="fa-refresh fa-2x" />
+                    <field name="name"/>
+                    <field name="comment"/>
+                    <field name="street"/>
+                    <field name="city"/>
+                    <field name="phone"/>
+                    <field name="website"/>
+                    <field name="fax"/>
+                    <field name="zip"/>
+                    <field name="country"/>
+                </tree>
+            </field>
+        </record>
+
     <record model="ir.actions.act_window" id="salesforce_action">
       <field name="name">practise window</field>
       <field name="res_model">salesforce.connector</field>
@@ -108,6 +127,20 @@
       <field name="target">inline</field>
     </record>
 
+    <record id="salesforce_customers_action" model="ir.actions.act_window">
+        <field name="name">Salesforce customers</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">salesforce.customer</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click here to create new student !
+            </p>
+        </field>
+    </record>
+
     <menuitem id = "salesforce_integrator_menu_root" name="Salesforce integrator" sequence="1" groups="base.group_user"/>
-    <menuitem id = "salesforces_menu" name="salesforces" action="salesforce_action" parent="salesforce_integrator_menu_root" sequence="1" groups="base.group_user"/>
+    <menuitem id = "salesforces_menu" name="salesforce" action="salesforce_action" parent="salesforce_integrator_menu_root" sequence="1" groups="base.group_user"/>
+    <menuitem id = "salesforces_customers_menu" name="salesforce cutomers" action="salesforce_customers_action" parent="salesforce_integrator_menu_root" sequence="2" groups="base.group_user"/>
 </odoo>

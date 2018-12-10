@@ -9,6 +9,13 @@ class SalesforceCustomers(models.Model):
 
     name = fields.Char(string="Name")
     comment = fields.Char(string="Comment")
+    street = fields.Char(string="street")
+    city = fields.Char(string="city")
+    phone = fields.Char(string="phone")
+    website = fields.Char(string="website")
+    fax = fields.Char(string="fax")
+    zip = fields.Char(string="zip")
+    country = fields.Char(string="country")
 
     @api.model
     def create(self, values):
@@ -22,19 +29,19 @@ class SalesForceImporter(models.Model):
     field_name = fields.Char(sring="salesforce connector")
     sales_force = None
 
+    username = 'mycompany@mail.ru'
+    password = 'admin123456'
+    security_token = 'xnVi1tGutbGedB7Wzg1hTv1jT'
+
     def sync_data(self):
         self.import_data()
 
     def import_data(self):
         data_dictionary = {}
-
-        username = 'mycompany@mail.ru'
-        password = 'admin123456'
-        security_token = 'xnVi1tGutbGedB7Wzg1hTv1jT'
         session_id, instance = SalesforceLogin(
-            username=username,
-            password=password,
-            security_token=security_token)
+            username=self.username,
+            password=self.password,
+            security_token=self.security_token)
         self.sales_force = Salesforce(instance=instance, session_id=session_id)
         self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
 
@@ -77,15 +84,31 @@ class SalesForceImporter(models.Model):
             query = query + " where id='%s'" % customer_id
 
         contacts = self.sales_force.query(query=query)["records"]
+
+        partner_model = self.env["salesforce.customer"]
+        old_customers = partner_model.search([])
+        old_customers_name = [customer.name for customer in old_customers]
+        for customer in contacts:
+            if customer["Name"] in old_customers_name:
+                continue
+
         for customer in contacts:
             customer_data = dict()
             customer_data["name"] = customer["Name"] if customer["Name"] else ""
+            customer_data["street"] = customer["ShippingStreet"] if customer["ShippingStreet"] else ""
+            customer_data["city"] = customer["ShippingCity"] if customer["ShippingCity"] else ""
+            customer_data["phone"] = customer["Phone"] if customer["Phone"] else ""
             customer_data["comment"] = customer['Description'] if customer['Description'] else ""
+            customer_data['website'] = customer["Website"] if customer["Website"] else ""
+            customer_data["fax"] = customer["Fax"] if customer["Fax"] else ""
+            customer_data["zip"] = customer["ShippingPostalCode"] if customer["ShippingPostalCode"] else ""
+            customer_data["country"] = customer['ShippingCountry'] if customer['ShippingCountry'] else ""
 
             curr_customer = self.env["salesforce.customer"].create(customer_data)
             customers.append(curr_customer)
         self.env.cr.commit()
         return customers
+
 
     def import_sale_orders(self):
         try:
