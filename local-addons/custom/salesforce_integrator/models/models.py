@@ -38,7 +38,7 @@ class SalesForceImporter(models.Model):
 
     # def sync_data(self):
     #     self.import_data()
-
+    # абракадабра
     def import_data(self):
         data_dictionary = {}
 
