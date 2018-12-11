@@ -1,26 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <record model="ir.ui.view" id="rest_user_inherit_form">
-            <field name="name">res.users.form</field>
-            <field name="model">salesforce.user</field>
-            <field name="inherit_id" ref="base.view_users_form"/>
-            <field name="arch" type="xml">
-                <xpath expr="//form/sheet/notebook/page[2]" position="after">
-                    <page string="Sale force Credentials">
-                        <group>
-                            <!--<field name="sf_username"/>-->
-                            <!--<field name="sf_password" password="True"/>-->
-                            <!--<field name="sf_security_token"/>-->
-                            <!--<field name="auth_token"/>-->
-                            <!--<field name="marketplaceid"/>-->
-                            <button name="test_credientials" type="object" string="Test Credientials" class="oe_highlight" />
-                        </group>
-
-                    </page>
-                </xpath>
-            </field>
-           </record>
-
     <record model="ir.ui.view" id="salesforce_form_view">
             <field name="name">salesforce.form</field>
             <field name="model">salesforce.connector</field>
@@ -48,16 +27,6 @@
             </tree>
         </field>
     </record>
-
-    <record model="ir.ui.view" id="salesforce_tree_view">
-            <field name="name">salesforce.tree</field>
-            <field name="model">salesforce.connector</field>
-            <field name="arch" type="xml">
-                <tree string="salesforce Users" create="false" edit="false">
-                    <field name="field_name"/>
-                </tree>
-            </field>
-        </record>
 
     <record model="ir.ui.view" id="salesforce_tree_view">
             <field name="name">salesforce.customer.tree</field>
