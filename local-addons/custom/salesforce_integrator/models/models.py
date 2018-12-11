@@ -25,8 +25,7 @@ class SalesforceCustomers(models.Model):
 class SalesforceOrders(models.Model):
     _name = 'salesforce.orders'
 
-    order = fields.Char(string="Order")
-    partner_id = fields.Char(string="Customer id")
+    name = fields.Char(string="Order")
     customer = fields.Char(string="Customer")
     state = fields.Char(string="Status")
     date_order = fields.Date(string="Effective Date")
@@ -56,15 +55,16 @@ class SalesForceImporter(models.Model):
         session_id, instance = SalesforceLogin(
             username=self.username,
             password=self.password,
-            security_token=self.security_token)
+            security_token=self.security_token
+        )
         self.sales_force = Salesforce(instance=instance, session_id=session_id)
         self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
 
         if self.sales_force is None:
             raise Warning(_("Kindly provide Salesforce credentails for odoo user", ))
         else:
-            data_dictionary["customers"] = self.add_customers_from_sales_force()
-            self.import_sale_orders()
+            data_dictionary['customers'] = self.add_customers_from_sales_force()
+            data_dictionary['orders'] = self.import_sale_orders()
 
     @api.multi
     def connect_to_salesforce(self):
@@ -104,22 +104,25 @@ class SalesForceImporter(models.Model):
         old_customers_name = [customer.name for customer in old_customers]
         for customer in contacts:
             if customer["Name"] in old_customers_name:
+                customers.append(partner_model.search([("name", "=", customer["Name"])]))
                 continue
 
-        for customer in contacts:
-            customer_data = dict()
-            customer_data["name"] = customer["Name"] if customer["Name"] else ""
-            customer_data["street"] = customer["ShippingStreet"] if customer["ShippingStreet"] else ""
-            customer_data["city"] = customer["ShippingCity"] if customer["ShippingCity"] else ""
-            customer_data["phone"] = customer["Phone"] if customer["Phone"] else ""
-            customer_data["comment"] = customer['Description'] if customer['Description'] else ""
-            customer_data['website'] = customer["Website"] if customer["Website"] else ""
-            customer_data["fax"] = customer["Fax"] if customer["Fax"] else ""
-            customer_data["zip"] = customer["ShippingPostalCode"] if customer["ShippingPostalCode"] else ""
-            customer_data["country"] = customer['ShippingCountry'] if customer['ShippingCountry'] else ""
+            customer_data = {
+                "name": customer["Name"],
+                "street": customer["ShippingStreet"],
+                "city": customer["ShippingCity"],
+                "phone": customer["Phone"],
+                "comment": customer["Description"],
+                "website": customer["Website"],
+                "fax": customer["Fax"],
+                "zip": customer["ShippingPostalCode"],
+                "country": customer["ShippingCountry"],
+            }
 
             curr_customer = self.env["salesforce.customer"].create(customer_data)
             customers.append(curr_customer)
+
+
         self.env.cr.commit()
         return customers
 
@@ -134,24 +137,19 @@ class SalesForceImporter(models.Model):
             for order in orders:
                 if order["OrderNumber"] in order_name:
                     continue
-                # details = self.add_order_products_in_product_model(order["Id"])
                 customer = self.add_customers_from_sales_force(order['AccountId'])[0]
-                temp_order = {"order": order["OrderNumber"],
-                              "partner_id": customer.id,
-                              "state": "draft" if order['Status'] == 'Draft' else 'sale',
-                              "customer": customer.name,
-                              # "invoice_status": "no",
-                              # "confirmation_date": order['EffectiveDate'],
-                              "date_order": order['EffectiveDate']}
-                order_data.append(temp_order)
-                self.env["salesforce.orders"].create(temp_order)
-                self.env.cr.commit()
-                # for product_details, quantity in details:
-                #     self.env["sale.order.line"].create({'product_uom': 1,
-                #                                         'product_id': self.get_product_id(product_details.id),
-                #                                         'order_partner_id': customer.id, "order_id": sale_order.id,
-                #                                         "product_uom_qty": quantity})
+                temp_order = {
+                    "name": order["OrderNumber"],
+                    "state": "draft" if order['Status'] == 'Draft' else 'sale',
+                    "customer": customer.name,
+                    "date_order": order['EffectiveDate']
+                }
+
+                curr_order = self.env["salesforce.orders"].create(temp_order)
+                order_data.append(curr_order)
+
             self.env.cr.commit()
             return order_data
+
         except Exception as e:
             raise Warning(_(str(e)))
