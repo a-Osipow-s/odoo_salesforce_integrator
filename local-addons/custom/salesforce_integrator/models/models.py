@@ -53,21 +53,12 @@ class SalesForceImporter(models.Model):
 
     def import_data(self):
         data_dictionary = {}
-<<<<<<< HEAD
         self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
 
         data_dictionary["customers"] = self.env['salesforce.connector'].with_delay().add_customers_from_sales_force()
         data_dictionary["orders"] = self.env['salesforce.connector'].with_delay().import_sale_orders()
         # data_dictionary["customers"] = self.add_customers_from_sales_force()
         # data_dictionary["orders"] = self.import_sale_orders()
-=======
-        self.sales_force = self.connect_to_salesforce()
-        if self.connect_to_salesforce():
-            raise Warning(_("Kindly provide Salesforce credentails for odoo user", ))
-        else:
-            data_dictionary["customers"] = self.add_customers_from_sales_force()
-            data_dictionary["orders"] = self.import_sale_orders()
->>>>>>> ca6548c90a21c6ca64e402e5dba8d4718ee11580
 
     @api.multi
     def connect_to_salesforce(self):
@@ -79,14 +70,9 @@ class SalesForceImporter(models.Model):
                 username=username,
                 password=password,
                 security_token=security_token)
-<<<<<<< HEAD
             sales_force = Salesforce(instance=instance, session_id=session_id)
             self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
             return sales_force
-=======
-            self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
-            return Salesforce(instance=instance, session_id=session_id)
->>>>>>> ca6548c90a21c6ca64e402e5dba8d4718ee11580
         except Exception as e:
             Warning(_(str(e)))
 
@@ -150,26 +136,12 @@ class SalesForceImporter(models.Model):
                     continue
 
                 customer = self.add_customers_from_sales_force(order['AccountId'])[0]
-<<<<<<< HEAD
                 temp_order = {"name": order["OrderNumber"],
                               "state": "draft" if order['Status'] == 'Draft' else 'sale',
                               "customer": customer.name,
                               "date_order": order['EffectiveDate']}
                 order_data.append(temp_order)
                 self.env["salesforce.orders"].create(temp_order)
-=======
-                temp_order = {
-                    "name": order["OrderNumber"],
-                    "state": "draft" if order['Status'] == 'Draft' else 'sale',
-                    "customer": customer.name,
-                    "date_order": order['EffectiveDate']
-                }
-
-                curr_order = self.env["salesforce.orders"].create(temp_order)
-                order_data.append(curr_order)
-
-
->>>>>>> ca6548c90a21c6ca64e402e5dba8d4718ee11580
             self.env.cr.commit()
             return order_data
 
