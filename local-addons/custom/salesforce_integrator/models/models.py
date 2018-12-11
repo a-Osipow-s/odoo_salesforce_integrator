@@ -1,4 +1,5 @@
 from odoo import models, fields, api
+from odoo.addons.queue_job.job import job
 from simple_salesforce import Salesforce, SalesforceLogin
 from openerp import _
 import logging
@@ -26,7 +27,6 @@ class SalesforceOrders(models.Model):
     _name = 'salesforce.orders'
 
     name = fields.Char(string="Order")
-    partner_id = fields.Char(string="Customer id")
     customer = fields.Char(string="Customer")
     state = fields.Char(string="Status")
     date_order = fields.Date(string="Effective Date")
@@ -63,6 +63,8 @@ class SalesForceImporter(models.Model):
         if self.sales_force is None:
             raise Warning(_("Kindly provide Salesforce credentails for odoo user", ))
         else:
+            # data_dictionary["customers"] = self.env['salesforce.connector'].with_delay().add_customers_from_sales_force()
+            # data_dictionary["orders"] = self.env['salesforce.connector'].with_delay().import_sale_orders()
             data_dictionary["customers"] = self.add_customers_from_sales_force()
             data_dictionary["orders"] = self.import_sale_orders()
 
@@ -89,6 +91,7 @@ class SalesForceImporter(models.Model):
             raise Warning(_(str(e)))
 
     @api.multi
+    # @job
     def add_customers_from_sales_force(self, customer_id=None):
         self._logger.info('gurrent sales_force state: %s' % self.sales_force)
         query = "select id, name, shippingStreet, ShippingCity,Website, ShippingPostalCode, shippingCountry, fax, phone, Description from account"
@@ -122,7 +125,7 @@ class SalesForceImporter(models.Model):
         self.env.cr.commit()
         return customers
 
-
+    # @job
     def import_sale_orders(self):
         try:
             orders = self.sales_force.query("select id , AccountId, EffectiveDate, orderNumber, status from Order")['records']
@@ -135,7 +138,6 @@ class SalesForceImporter(models.Model):
                     continue
                 customer = self.add_customers_from_sales_force(order['AccountId'])[0]
                 temp_order = {"name": order["OrderNumber"],
-                              "partner_id": customer.id,
                               "state": "draft" if order['Status'] == 'Draft' else 'sale',
                               "customer": customer.name,
                               "date_order": order['EffectiveDate']}

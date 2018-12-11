@@ -42,7 +42,6 @@
         <field name="arch" type="xml">
             <tree string="salesforce Users" create="false" edit="false">
                 <field name="name"/>
-                <field name="partner_id"/>
                 <field name="customer"/>
                 <field name="state"/>
                 <field name="date_order"/>
