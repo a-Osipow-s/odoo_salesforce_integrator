@@ -25,7 +25,7 @@ class SalesforceCustomers(models.Model):
 class SalesforceOrders(models.Model):
     _name = 'salesforce.orders'
 
-    order = fields.Char(string="Order")
+    name = fields.Char(string="Order")
     partner_id = fields.Char(string="Customer id")
     customer = fields.Char(string="Customer")
     state = fields.Char(string="Status")
@@ -64,7 +64,7 @@ class SalesForceImporter(models.Model):
             raise Warning(_("Kindly provide Salesforce credentails for odoo user", ))
         else:
             data_dictionary["customers"] = self.add_customers_from_sales_force()
-            self.import_sale_orders()
+            data_dictionary["orders"] = self.import_sale_orders()
 
     @api.multi
     def connect_to_salesforce(self):
@@ -104,11 +104,9 @@ class SalesForceImporter(models.Model):
         old_customers_name = [customer.name for customer in old_customers]
         for customer in contacts:
             if customer["Name"] in old_customers_name:
+                customers.append(partner_model.search([("name", "=", customer["Name"])]))
                 continue
-
-        for customer in contacts:
             customer_data = dict()
-            customer_data["id"] = customer["Id"] if customer["Id"] else ""
             customer_data["name"] = customer["Name"] if customer["Name"] else ""
             customer_data["street"] = customer["ShippingStreet"] if customer["ShippingStreet"] else ""
             customer_data["city"] = customer["ShippingCity"] if customer["ShippingCity"] else ""
@@ -130,22 +128,19 @@ class SalesForceImporter(models.Model):
             orders = self.sales_force.query("select id , AccountId, EffectiveDate, orderNumber, status from Order")['records']
             self._logger.info(orders)
             order_model = self.env["salesforce.orders"]
-            order_name = [order.order for order in order_model.search([])]
+            order_name = [order.name for order in order_model.search([])]
             order_data = []
             for order in orders:
                 if order["OrderNumber"] in order_name:
                     continue
-                customer = order_model.search(['id', '=', order['AccountId']])
-                self._logger.warning(customer)
-                temp_order = {"order": order["OrderNumber"],
-                              "partner_id": "test id",
+                customer = self.add_customers_from_sales_force(order['AccountId'])[0]
+                temp_order = {"name": order["OrderNumber"],
+                              "partner_id": customer.id,
                               "state": "draft" if order['Status'] == 'Draft' else 'sale',
                               "customer": customer.name,
                               "date_order": order['EffectiveDate']}
                 order_data.append(temp_order)
                 self.env["salesforce.orders"].create(temp_order)
-                self.env.cr.commit()
-
             self.env.cr.commit()
             return order_data
         except Exception as e:

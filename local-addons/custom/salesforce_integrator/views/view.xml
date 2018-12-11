@@ -41,7 +41,7 @@
         <field name="model">salesforce.orders</field>
         <field name="arch" type="xml">
             <tree string="salesforce Users" create="false" edit="false">
-                <field name="order"/>
+                <field name="name"/>
                 <field name="partner_id"/>
                 <field name="customer"/>
                 <field name="state"/>
@@ -65,8 +65,6 @@
             <field name="model">salesforce.customer</field>
             <field name="arch" type="xml">
                 <tree string="salesforce customers" create="false" edit="false">
-                    <button name="sync_data" string="Import customers" class="oe_highlight" icon="fa-refresh fa-2x" />
-                    <field name="id"/>
                     <field name="name"/>
                     <field name="comment"/>
                     <field name="street"/>
