@@ -72,9 +72,9 @@ class SalesForceImporter(models.Model):
                 security_token=security_token)
             sales_force = Salesforce(instance=instance, session_id=session_id)
             self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
+            return sales_force
         except Exception as e:
             Warning(_(str(e)))
-        return sales_force
 
     def import_customers(self):
         try:
@@ -98,6 +98,7 @@ class SalesForceImporter(models.Model):
         partner_model = self.env["salesforce.customer"]
         old_customers = partner_model.search([])
         old_customers_name = [customer.name for customer in old_customers]
+
         for customer in contacts:
             if customer["Name"] in old_customers_name:
                 customers.append(partner_model.search([("name", "=", customer["Name"])]))
@@ -113,8 +114,11 @@ class SalesForceImporter(models.Model):
             customer_data["zip"] = customer["ShippingPostalCode"] if customer["ShippingPostalCode"] else ""
             customer_data["country"] = customer['ShippingCountry'] if customer['ShippingCountry'] else ""
 
+
             curr_customer = self.env["salesforce.customer"].create(customer_data)
             customers.append(curr_customer)
+
+
         self.env.cr.commit()
         return customers
 
@@ -130,6 +134,7 @@ class SalesForceImporter(models.Model):
             for order in orders:
                 if order["OrderNumber"] in order_name:
                     continue
+
                 customer = self.add_customers_from_sales_force(order['AccountId'])[0]
                 temp_order = {"name": order["OrderNumber"],
                               "state": "draft" if order['Status'] == 'Draft' else 'sale',
@@ -139,5 +144,6 @@ class SalesForceImporter(models.Model):
                 self.env["salesforce.orders"].create(temp_order)
             self.env.cr.commit()
             return order_data
+
         except Exception as e:
             raise Warning(_(str(e)))

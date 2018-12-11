@@ -3,5 +3,6 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/local-addons/queue" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/odoo_modules" vcs="Git" />
   </component>
 </project>

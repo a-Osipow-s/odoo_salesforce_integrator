@@ -29,7 +29,7 @@
                      <sheet>
                          <h1>ODOO CONNECTOR</h1>
                          <group>
-                            <button name="import_data" type="object" string="Import customers" class="oe_highlight" icon="fa-refresh fa-2x" />
+                            <button name="import_data" type="object" string="Import date from Salesforce" class="oe_highlight" icon="fa-refresh fa-2x" />
                          </group>
                      </sheet>
                 </form>
@@ -93,7 +93,7 @@
         <field name="view_mode">tree,form</field>
         <field name="help" type="html">
             <p class="oe_view_nocontent_create">
-                Click here to create new student !
+                no customers!
             </p>
         </field>
     </record>
@@ -111,7 +111,7 @@
     </record>
 
     <menuitem id = "salesforce_integrator_menu_root" name="Salesforce integrator" sequence="1" groups="base.group_user"/>
-    <menuitem id = "salesforces_menu" name="salesforce" action="salesforce_action" parent="salesforce_integrator_menu_root" sequence="1" groups="base.group_user"/>
-    <menuitem id = "salesforces_customers_menu" name="salesforce cutomers" action="salesforce_customers_action" parent="salesforce_integrator_menu_root" sequence="2" groups="base.group_user"/>
+    <menuitem id = "salesforces_menu" name="Salesforce" action="salesforce_action" parent="salesforce_integrator_menu_root" sequence="1" groups="base.group_user"/>
+    <menuitem id = "salesforces_customers_menu" name="Customers" action="salesforce_customers_action" parent="salesforce_integrator_menu_root" sequence="2" groups="base.group_user"/>
     <menuitem id = "salesforce_menu_orders" name="Orders" action="orders_action" parent="salesforce_integrator_menu_root" groups="base.group_user"/>
 </odoo>
