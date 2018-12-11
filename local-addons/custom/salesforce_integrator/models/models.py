@@ -53,20 +53,12 @@ class SalesForceImporter(models.Model):
 
     def import_data(self):
         data_dictionary = {}
-        session_id, instance = SalesforceLogin(
-            username=self.username,
-            password=self.password,
-            security_token=self.security_token)
-        self.sales_force = Salesforce(instance=instance, session_id=session_id)
         self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
 
-        if self.sales_force is None:
-            raise Warning(_("Kindly provide Salesforce credentails for odoo user", ))
-        else:
-            # data_dictionary["customers"] = self.env['salesforce.connector'].with_delay().add_customers_from_sales_force()
-            # data_dictionary["orders"] = self.env['salesforce.connector'].with_delay().import_sale_orders()
-            data_dictionary["customers"] = self.add_customers_from_sales_force()
-            data_dictionary["orders"] = self.import_sale_orders()
+        data_dictionary["customers"] = self.env['salesforce.connector'].with_delay().add_customers_from_sales_force()
+        data_dictionary["orders"] = self.env['salesforce.connector'].with_delay().import_sale_orders()
+        # data_dictionary["customers"] = self.add_customers_from_sales_force()
+        # data_dictionary["orders"] = self.import_sale_orders()
 
     @api.multi
     def connect_to_salesforce(self):
@@ -78,11 +70,11 @@ class SalesForceImporter(models.Model):
                 username=username,
                 password=password,
                 security_token=security_token)
-            self.sales_force = Salesforce(instance=instance, session_id=session_id)
+            sales_force = Salesforce(instance=instance, session_id=session_id)
             self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
         except Exception as e:
             Warning(_(str(e)))
-        return True
+        return sales_force
 
     def import_customers(self):
         try:
@@ -91,8 +83,9 @@ class SalesForceImporter(models.Model):
             raise Warning(_(str(e)))
 
     @api.multi
-    # @job
+    @job
     def add_customers_from_sales_force(self, customer_id=None):
+        self.sales_force = self.connect_to_salesforce()
         self._logger.info('gurrent sales_force state: %s' % self.sales_force)
         query = "select id, name, shippingStreet, ShippingCity,Website, ShippingPostalCode, shippingCountry, fax, phone, Description from account"
         customers = []
@@ -125,9 +118,10 @@ class SalesForceImporter(models.Model):
         self.env.cr.commit()
         return customers
 
-    # @job
+    @job
     def import_sale_orders(self):
         try:
+            self.sales_force = self.connect_to_salesforce()
             orders = self.sales_force.query("select id , AccountId, EffectiveDate, orderNumber, status from Order")['records']
             self._logger.info(orders)
             order_model = self.env["salesforce.orders"]
