@@ -42,7 +42,11 @@
         <field name="arch" type="xml">
             <tree string="salesforce Users" create="false" edit="false">
                 <field name="name"/>
+<<<<<<< HEAD
                 <!--<field name="partner_id"/>-->
+=======
+                <field name="partner_id"/>
+>>>>>>> a2102e5697d156ac3bc9578943a7ab07848b7cc1
                 <field name="customer"/>
                 <field name="state"/>
                 <field name="date_order"/>
@@ -65,7 +69,6 @@
             <field name="model">salesforce.customer</field>
             <field name="arch" type="xml">
                 <tree string="salesforce customers" create="false" edit="false">
-                    <field name="id"/>
                     <field name="name"/>
                     <field name="comment"/>
                     <field name="street"/>
