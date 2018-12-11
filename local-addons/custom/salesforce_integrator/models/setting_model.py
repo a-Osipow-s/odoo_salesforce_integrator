@@ -20,8 +20,10 @@ class SalesforceCustomers(models.Model):
 
     @api.model
     def create(self, values):
+        #q
         record = super(SalesforceCustomers, self).create(values)
         return record
+
 
 class SalesforceOrders(models.Model):
     _name = 'salesforce.orders'
