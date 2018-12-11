@@ -52,15 +52,8 @@ class SalesForceImporter(models.Model):
 
     def import_data(self):
         data_dictionary = {}
-        session_id, instance = SalesforceLogin(
-            username=self.username,
-            password=self.password,
-            security_token=self.security_token
-        )
-        self.sales_force = Salesforce(instance=instance, session_id=session_id)
-        self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
-
-        if self.sales_force is None:
+        self.sales_force = self.connect_to_salesforce()
+        if self.connect_to_salesforce():
             raise Warning(_("Kindly provide Salesforce credentails for odoo user", ))
         else:
             data_dictionary['customers'] = self.add_customers_from_sales_force()
@@ -76,11 +69,10 @@ class SalesForceImporter(models.Model):
                 username=username,
                 password=password,
                 security_token=security_token)
-            self.sales_force = Salesforce(instance=instance, session_id=session_id)
             self._logger.info('successfully connect to sales_force. sales_force= %s' % self.sales_force)
+            return Salesforce(instance=instance, session_id=session_id)
         except Exception as e:
             Warning(_(str(e)))
-        return True
 
     def import_customers(self):
         try:
@@ -102,22 +94,23 @@ class SalesForceImporter(models.Model):
         partner_model = self.env["salesforce.customer"]
         old_customers = partner_model.search([])
         old_customers_name = [customer.name for customer in old_customers]
+
         for customer in contacts:
             if customer["Name"] in old_customers_name:
                 customers.append(partner_model.search([("name", "=", customer["Name"])]))
                 continue
+            customer_data = dict()
+            customer_data["id"] = customer["Id"] if customer["Id"] else ""
+            customer_data["name"] = customer["Name"] if customer["Name"] else ""
+            customer_data["street"] = customer["ShippingStreet"] if customer["ShippingStreet"] else ""
+            customer_data["city"] = customer["ShippingCity"] if customer["ShippingCity"] else ""
+            customer_data["phone"] = customer["Phone"] if customer["Phone"] else ""
+            customer_data["comment"] = customer['Description'] if customer['Description'] else ""
+            customer_data['website'] = customer["Website"] if customer["Website"] else ""
+            customer_data["fax"] = customer["Fax"] if customer["Fax"] else ""
+            customer_data["zip"] = customer["ShippingPostalCode"] if customer["ShippingPostalCode"] else ""
+            customer_data["country"] = customer['ShippingCountry'] if customer['ShippingCountry'] else ""
 
-            customer_data = {
-                "name": customer["Name"],
-                "street": customer["ShippingStreet"],
-                "city": customer["ShippingCity"],
-                "phone": customer["Phone"],
-                "comment": customer["Description"],
-                "website": customer["Website"],
-                "fax": customer["Fax"],
-                "zip": customer["ShippingPostalCode"],
-                "country": customer["ShippingCountry"],
-            }
 
             curr_customer = self.env["salesforce.customer"].create(customer_data)
             customers.append(curr_customer)
@@ -137,6 +130,7 @@ class SalesForceImporter(models.Model):
             for order in orders:
                 if order["OrderNumber"] in order_name:
                     continue
+
                 customer = self.add_customers_from_sales_force(order['AccountId'])[0]
                 temp_order = {
                     "name": order["OrderNumber"],
@@ -147,6 +141,7 @@ class SalesForceImporter(models.Model):
 
                 curr_order = self.env["salesforce.orders"].create(temp_order)
                 order_data.append(curr_order)
+
 
             self.env.cr.commit()
             return order_data
