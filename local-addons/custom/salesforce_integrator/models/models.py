@@ -26,10 +26,6 @@ class SalesforceOrders(models.Model):
     _name = 'salesforce.orders'
 
     name = fields.Char(string="Order")
-<<<<<<< HEAD
-=======
-    partner_id = fields.Char(string="Customer id")
->>>>>>> a2102e5697d156ac3bc9578943a7ab07848b7cc1
     customer = fields.Char(string="Customer")
     state = fields.Char(string="Status")
     date_order = fields.Date(string="Effective Date")
@@ -133,7 +129,6 @@ class SalesForceImporter(models.Model):
             for order in orders:
                 if order["OrderNumber"] in order_name:
                     continue
-<<<<<<< HEAD
 
                 customer = self.add_customers_from_sales_force(order['AccountId'])[0]
                 temp_order = {
@@ -147,16 +142,6 @@ class SalesForceImporter(models.Model):
                 order_data.append(curr_order)
 
 
-=======
-                customer = self.add_customers_from_sales_force(order['AccountId'])[0]
-                temp_order = {"name": order["OrderNumber"],
-                              "partner_id": customer.id,
-                              "state": "draft" if order['Status'] == 'Draft' else 'sale',
-                              "customer": customer.name,
-                              "date_order": order['EffectiveDate']}
-                order_data.append(temp_order)
-                self.env["salesforce.orders"].create(temp_order)
->>>>>>> a2102e5697d156ac3bc9578943a7ab07848b7cc1
             self.env.cr.commit()
             return order_data
 
