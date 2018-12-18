@@ -8,7 +8,8 @@
                      <sheet>
                          <h1>ODOO CONNECTOR</h1>
                          <group>
-                            <button name="import_data" type="object" string="Import date from Salesforce" class="oe_highlight" icon="fa-refresh fa-2x" />
+                            <button name="async_import_customers" type="object" string="Import customers from Salesforce" class="oe_highlight" icon="fa-refresh fa-2x" />
+                            <button name="async_import_orders" type="object" string="Import orders from Salesforce" class="oe_highlight" icon="fa-refresh fa-2x" />
                          </group>
                      </sheet>
                 </form>

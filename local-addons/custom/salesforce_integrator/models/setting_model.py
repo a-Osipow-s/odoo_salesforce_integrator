@@ -18,12 +18,6 @@ class SalesforceCustomers(models.Model):
     zip = fields.Char(string="zip")
     country = fields.Char(string="country")
 
-    @api.model
-    def create(self, values):
-        #q
-        record = super(SalesforceCustomers, self).create(values)
-        return record
-
 
 class SalesforceOrders(models.Model):
     _name = 'salesforce.orders'
@@ -32,11 +26,6 @@ class SalesforceOrders(models.Model):
     customer = fields.Char(string="Customer")
     state = fields.Char(string="Status")
     date_order = fields.Date(string="Effective Date")
-
-    @api.model
-    def create(self, values):
-        record = super(SalesforceOrders, self).create(values)
-        return record
 
 class SalesForceImporter(models.Model):
     _name = 'salesforce.connector'
@@ -49,10 +38,12 @@ class SalesForceImporter(models.Model):
     password = 'Vasykrab123'
     security_token = 'spAsycjVt9iBA56mXwFxRuRoD'
 
-    def import_data(self):
-        data_dictionary = {}
-        data_dictionary["customers"] = self.env['salesforce.connector'].with_delay().add_customers_from_sales_force()
-        data_dictionary["orders"] = self.env['salesforce.connector'].with_delay().import_sale_orders()
+    def async_import_customers(self):
+        self.env['salesforce.connector'].with_delay().add_customers_from_sales_force()
+
+    def async_import_orders(self):
+        self.env['salesforce.connector'].with_delay().import_sale_orders()
+
 
     @api.multi
     def connect_to_salesforce(self):
@@ -78,7 +69,6 @@ class SalesForceImporter(models.Model):
             query = query + " where id='%s'" % customer_id
 
         contacts = self.sales_force.query(query=query)["records"]
-
         partner_model = self.env["salesforce.customer"]
         old_customers = partner_model.search([])
         old_customers_name = [customer.name for customer in old_customers]
@@ -114,17 +104,22 @@ class SalesForceImporter(models.Model):
             order_model = self.env["salesforce.orders"]
             order_name = [order.name for order in order_model.search([])]
             order_data = []
+
             for order in orders:
                 if order["OrderNumber"] in order_name:
                     continue
 
                 customer = self.add_customers_from_sales_force(order['AccountId'])[0]
-                temp_order = {"name": order["OrderNumber"],
-                              "state": "draft" if order['Status'] == 'Draft' else 'sale',
-                              "customer": customer.name,
-                              "date_order": order['EffectiveDate']}
+                temp_order = {
+                    "name": order["OrderNumber"],
+                    "state": "draft" if order['Status'] == 'Draft' else 'sale',
+                    "customer": customer.name,
+                    "date_order": order['EffectiveDate']
+                }
+
                 order_data.append(temp_order)
                 self.env["salesforce.orders"].create(temp_order)
+
             self.env.cr.commit()
             return order_data
         except Exception as e:
